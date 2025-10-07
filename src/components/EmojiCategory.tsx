@@ -53,7 +53,7 @@ export const EmojiCategory = React.memo(
       minimalEmojisAmountToDisplay,
     } = React.useContext(KeyboardContext)
 
-    const { keyboardHeight } = useKeyboard()
+    const { keyboardHeight } = useKeyboard(true)
 
     const contentContainerStyle = { paddingBottom: keyboardHeight }
 

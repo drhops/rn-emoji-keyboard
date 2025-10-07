@@ -18,27 +18,24 @@ export const EmojiPicker = ({
   expandable = defaultKeyboardContext.expandable,
   defaultHeight = defaultKeyboardContext.defaultHeight,
   allowMultipleSelections = false,
-  disableKeyboardHeightChange = false,
   ...props
 }: KeyboardProps) => {
   const { height: screenHeight } = useWindowDimensions()
   const offsetY = React.useRef(new Animated.Value(0)).current
   const height = React.useRef(new Animated.Value(getHeight(defaultHeight, screenHeight))).current
   const additionalHeight = React.useRef(new Animated.Value(0)).current
-  const { keyboardShown, keyboardHeight } = useKeyboard()
-  const keyboardVisible = keyboardShown && open
-
+  const { keyboardVisible, keyboardHeight } = useKeyboard(open)
   const [isExpanded, setIsExpanded] = React.useState(false)
 
   React.useEffect(() => {
-    const shouldExpandHeight = keyboardVisible && !isExpanded && !disableKeyboardHeightChange
+    const shouldExpandHeight = keyboardVisible && !isExpanded
     const newAdditionalHeightValue = shouldExpandHeight ? keyboardHeight : 0
     Animated.timing(additionalHeight, {
       toValue: newAdditionalHeightValue,
       useNativeDriver: false,
       duration: 200,
     }).start()
-  }, [additionalHeight, isExpanded, keyboardHeight, keyboardVisible, disableKeyboardHeightChange])
+  }, [additionalHeight, isExpanded, keyboardHeight, keyboardVisible])
 
   const close = () => {
     height.setValue(getHeight(defaultHeight, screenHeight))
@@ -62,7 +59,6 @@ export const EmojiPicker = ({
         isOpen={open}
         backdropPress={close}
         onRequestClose={onRequestClose || close}
-        statusBarTranslucent
       >
         <>
           {expandable && (
