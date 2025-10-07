@@ -72,6 +72,7 @@ export type KeyboardProps = {
   hideHeader?: boolean
   defaultHeight?: number | string
   expandedHeight?: number | string
+  disableKeyboardHeightChange?: boolean
   onCategoryChangeFailed?: (info: {
     index: number
     highestMeasuredFrameIndex: number
@@ -171,6 +172,7 @@ export const defaultKeyboardContext: Required<KeyboardProps> & {
   hideHeader: false,
   defaultHeight: '40%',
   expandedHeight: '80%',
+  disableKeyboardHeightChange: false,
   onCategoryChangeFailed: (info) => console.warn(info),
   translation: en,
   disabledCategories: [],
