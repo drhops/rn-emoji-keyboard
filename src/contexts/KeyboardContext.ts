@@ -72,7 +72,6 @@ export type KeyboardProps = {
   hideHeader?: boolean
   defaultHeight?: number | string
   expandedHeight?: number | string
-  disableKeyboardHeightChange?: boolean
   onCategoryChangeFailed?: (info: {
     index: number
     highestMeasuredFrameIndex: number

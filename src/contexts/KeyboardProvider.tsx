@@ -1,25 +1,25 @@
 import * as React from 'react'
 import { useWindowDimensions } from 'react-native'
-import { useKeyboardStore } from '../store/useKeyboardStore'
-import type { CategoryTypes, EmojiTonesData, EmojisByCategory, JsonEmoji } from '../types'
-import { deepMerge } from '../utils/deepMerge'
 import {
-  generateToneSelectorFunnelPosition,
-  generateToneSelectorPosition,
-  insertAtCertainIndex,
-  skinTones,
-  variantSelector,
-  zeroWidthJoiner,
-} from '../utils/skinToneSelectorUtils'
-import {
+  type KeyboardProps,
+  type ContextValues,
   KeyboardContext,
   defaultKeyboardContext,
   defaultKeyboardValues,
   defaultTheme,
   emptyStyles,
-  type ContextValues,
-  type KeyboardProps,
 } from './KeyboardContext'
+import { useKeyboardStore } from '../store/useKeyboardStore'
+import type { CategoryTypes, EmojisByCategory, JsonEmoji, EmojiTonesData } from '../types'
+import {
+  skinTones,
+  generateToneSelectorFunnelPosition,
+  generateToneSelectorPosition,
+  insertAtCertainIndex,
+  variantSelector,
+  zeroWidthJoiner,
+} from '../utils/skinToneSelectorUtils'
+import { deepMerge } from '../utils/deepMerge'
 
 type ProviderProps = Partial<KeyboardProps> &
   Pick<KeyboardProps, 'onEmojiSelected'> & {
@@ -153,7 +153,6 @@ export const KeyboardProvider: React.FC<ProviderProps> = React.memo((props) => {
       })
     }
     if (props.enableSearchBar) {
-      const uniqueEmojis = new Set()
       data.push({
         title: 'search' as CategoryTypes,
         data: emojisByCategory
@@ -161,7 +160,6 @@ export const KeyboardProvider: React.FC<ProviderProps> = React.memo((props) => {
           .flat()
           .filter((emoji) => {
             if (searchPhrase.length < 2) return false
-            if (uniqueEmojis.has(emoji.emoji)) return false
 
             const isInKeywords =
               emoji?.keywords &&
@@ -170,16 +168,11 @@ export const KeyboardProvider: React.FC<ProviderProps> = React.memo((props) => {
                 keyword.toLowerCase().includes(searchPhrase.toLowerCase()),
               )
 
-            const shouldInclude =
+            return (
               emoji.name.toLowerCase().includes(searchPhrase.toLowerCase()) ||
               emoji.emoji.toLowerCase().includes(searchPhrase) ||
               isInKeywords
-
-            if (shouldInclude) {
-              uniqueEmojis.add(emoji.emoji)
-              return true
-            }
-            return false
+            )
           }),
       })
     }
