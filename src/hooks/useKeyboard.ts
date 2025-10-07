@@ -21,26 +21,26 @@ export function useKeyboard() {
   const [keyboardHeight, setKeyboardHeight] = useState<number>(0)
 
   const handleKeyboardWillShow: KeyboardEventListener = (e) => {
-    setCoordinates({start: e.startCoordinates, end: e.endCoordinates})
+    setCoordinates({ start: e.startCoordinates, end: e.endCoordinates })
     setShown(true)
     setKeyboardHeight(e.endCoordinates.height)
   }
 
   const handleKeyboardDidShow: KeyboardEventListener = (e) => {
     setShown(true)
-    setCoordinates({start: e.startCoordinates, end: e.endCoordinates})
+    setCoordinates({ start: e.startCoordinates, end: e.endCoordinates })
     setKeyboardHeight(e.endCoordinates.height)
   }
 
   const handleKeyboardWillHide: KeyboardEventListener = (e) => {
-    setCoordinates({start: e.startCoordinates, end: e.endCoordinates})
+    setCoordinates({ start: e.startCoordinates, end: e.endCoordinates })
     setKeyboardHeight(0)
   }
 
   const handleKeyboardDidHide: KeyboardEventListener = (e) => {
     setShown(false)
     if (e) {
-      setCoordinates({start: e.startCoordinates, end: e.endCoordinates})
+      setCoordinates({ start: e.startCoordinates, end: e.endCoordinates })
     } else {
       setCoordinates(initialValue)
       setKeyboardHeight(0)

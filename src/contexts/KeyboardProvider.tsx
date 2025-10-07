@@ -4,21 +4,21 @@ import { useKeyboardStore } from '../store/useKeyboardStore'
 import type { CategoryTypes, EmojiTonesData, EmojisByCategory, JsonEmoji } from '../types'
 import { deepMerge } from '../utils/deepMerge'
 import {
-    generateToneSelectorFunnelPosition,
-    generateToneSelectorPosition,
-    insertAtCertainIndex,
-    skinTones,
-    variantSelector,
-    zeroWidthJoiner,
+  generateToneSelectorFunnelPosition,
+  generateToneSelectorPosition,
+  insertAtCertainIndex,
+  skinTones,
+  variantSelector,
+  zeroWidthJoiner,
 } from '../utils/skinToneSelectorUtils'
 import {
-    KeyboardContext,
-    defaultKeyboardContext,
-    defaultKeyboardValues,
-    defaultTheme,
-    emptyStyles,
-    type ContextValues,
-    type KeyboardProps,
+  KeyboardContext,
+  defaultKeyboardContext,
+  defaultKeyboardValues,
+  defaultTheme,
+  emptyStyles,
+  type ContextValues,
+  type KeyboardProps,
 } from './KeyboardContext'
 
 type ProviderProps = Partial<KeyboardProps> &
@@ -153,7 +153,7 @@ export const KeyboardProvider: React.FC<ProviderProps> = React.memo((props) => {
       })
     }
     if (props.enableSearchBar) {
-      const uniqueEmojis = new Set();
+      const uniqueEmojis = new Set()
       data.push({
         title: 'search' as CategoryTypes,
         data: emojisByCategory
@@ -173,13 +173,13 @@ export const KeyboardProvider: React.FC<ProviderProps> = React.memo((props) => {
             const shouldInclude =
               emoji.name.toLowerCase().includes(searchPhrase.toLowerCase()) ||
               emoji.emoji.toLowerCase().includes(searchPhrase) ||
-              isInKeywords;
+              isInKeywords
 
             if (shouldInclude) {
-              uniqueEmojis.add(emoji.emoji);
-              return true;
+              uniqueEmojis.add(emoji.emoji)
+              return true
             }
-            return false;
+            return false
           }),
       })
     }
