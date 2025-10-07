@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Keyboard, KeyboardEventListener, KeyboardMetrics } from 'react-native'
+import { Keyboard, type KeyboardEventListener, type KeyboardMetrics } from 'react-native'
 
 const emptyCoordinates = Object.freeze({
   screenX: 0,

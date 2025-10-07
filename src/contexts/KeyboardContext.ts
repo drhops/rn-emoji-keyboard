@@ -172,6 +172,7 @@ export const defaultKeyboardContext: Required<KeyboardProps> & {
   hideHeader: false,
   defaultHeight: '40%',
   expandedHeight: '80%',
+  disableKeyboardHeightChange: false,
   onCategoryChangeFailed: (info) => console.warn(info),
   translation: en,
   disabledCategories: [],
