@@ -90,12 +90,15 @@ export const removeSkinToneModifier = (emoji: string) => {
 // sequence), and *replaces* a variation selector (VS16, U+FE0F) rather than
 // following it: the modifier already forces emoji presentation, so a trailing
 // VS16 is non-conformant and fails strict emoji validation (e.g. ☝🏾 must be
-// 261D 1F3FE, not 261D 1F3FE FE0F).
-export const applySkinTone = (emoji: string, tone: string) => {
+// 261D 1F3FE, not 261D 1F3FE FE0F). The same rule applies to the leading
+// component of a ZWJ sequence (e.g. 🕵🏾‍♀️ must be 1F575 1F3FE 200D 2640 FE0F,
+// not 1F575 FE0F 1F3FE 200D 2640 FE0F).
+export const applySkinTone = (emoji: string, tone: string): string => {
   const parts = emoji.split('')
   const zwjIndex = parts.findIndex((a) => a === zeroWidthJoiner)
   if (zwjIndex > 0) {
-    return insertAtCertainIndex(parts, zwjIndex, tone).join('')
+    const leadingComponent = parts.slice(0, zwjIndex).join('')
+    return applySkinTone(leadingComponent, tone) + parts.slice(zwjIndex).join('')
   }
 
   const selectorIndex = parts.findIndex((a) => a === variantSelector)
