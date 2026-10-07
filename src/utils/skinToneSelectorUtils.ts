@@ -83,8 +83,13 @@ export const removeSkinToneModifier = (emoji: string) => {
   return emojiCopy
 }
 
+// Person components that take their own tone when they *close* a multi-person
+// ZWJ sequence (🧑‍🤝‍🧑, 👩‍❤️‍👨, 👩‍❤️‍💋‍👨). The RGI set only lists these with
+// both people toned, so toning the leading person alone is non-RGI.
+const personComponents = [0x1f468, 0x1f469, 0x1f9d1].map((c) => String.fromCodePoint(c))
+
 // Applies a Fitzpatrick skin-tone modifier to a base emoji, producing a
-// canonical Unicode sequence.
+// canonical (RGI) Unicode sequence.
 //
 // The modifier goes before a ZWJ (so it tones the leading component of a ZWJ
 // sequence), and *replaces* a variation selector (VS16, U+FE0F) rather than
@@ -92,18 +97,23 @@ export const removeSkinToneModifier = (emoji: string) => {
 // VS16 is non-conformant and fails strict emoji validation (e.g. ☝🏾 must be
 // 261D 1F3FE, not 261D 1F3FE FE0F). The same rule applies to the leading
 // component of a ZWJ sequence (e.g. 🕵🏾‍♀️ must be 1F575 1F3FE 200D 2640 FE0F,
-// not 1F575 FE0F 1F3FE 200D 2640 FE0F).
+// not 1F575 FE0F 1F3FE 200D 2640 FE0F). Non-leading components keep their VS16
+// (the ♀️ in 🕵🏾‍♀️, the ➡️ in 🚶🏾‍♀️‍➡️). A trailing person component in a
+// multi-person sequence is toned as well (🧑🏾‍🤝‍🧑🏾, not 🧑🏾‍🤝‍🧑).
 export const applySkinTone = (emoji: string, tone: string): string => {
-  const parts = emoji.split('')
-  const zwjIndex = parts.findIndex((a) => a === zeroWidthJoiner)
+  const zwjIndex = emoji.indexOf(zeroWidthJoiner)
   if (zwjIndex > 0) {
-    const leadingComponent = parts.slice(0, zwjIndex).join('')
-    return applySkinTone(leadingComponent, tone) + parts.slice(zwjIndex).join('')
+    const [leading, ...rest] = emoji.split(zeroWidthJoiner)
+    const last = rest[rest.length - 1]
+    if (last !== undefined && personComponents.includes(last)) {
+      rest[rest.length - 1] = last + tone
+    }
+    return [applySkinTone(leading ?? '', tone), ...rest].join(zeroWidthJoiner)
   }
 
-  const selectorIndex = parts.findIndex((a) => a === variantSelector)
+  const selectorIndex = emoji.indexOf(variantSelector)
   if (selectorIndex > 0) {
-    return [...parts.slice(0, selectorIndex), tone, ...parts.slice(selectorIndex + 1)].join('')
+    return emoji.slice(0, selectorIndex) + tone + emoji.slice(selectorIndex + 1)
   }
 
   return emoji + tone
