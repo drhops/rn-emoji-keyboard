@@ -83,7 +83,8 @@ export const removeSkinToneModifier = (emoji: string) => {
   for (let i = 0; i < skinToneCodes.length; i++) {
     const skinTone = skinToneCodes[i]
 
-    emojiCopy = skinTone ? emojiCopy.replace(skinTone, '') : emojiCopy
+    // split/join strips every occurrence: multi-person sequences carry two tones.
+    emojiCopy = skinTone ? emojiCopy.split(skinTone).join('') : emojiCopy
   }
   return emojiCopy
 }
@@ -99,24 +100,30 @@ const untonedEmojiByName = new Map(
 export const getUntonedEmoji = (emoji: JsonEmoji) =>
   untonedEmojiByName.get(emoji.name) ?? removeSkinToneModifier(emoji.emoji)
 
-// Applies a Fitzpatrick skin-tone modifier to a base emoji, producing a
-// canonical Unicode sequence.
-//
-// The modifier goes before a ZWJ (so it tones the leading component of a ZWJ
-// sequence), and *replaces* a variation selector (VS16, U+FE0F) rather than
-// following it: the modifier already forces emoji presentation, so a trailing
-// VS16 is non-conformant and fails strict emoji validation (e.g. ☝🏾 must be
-// 261D 1F3FE, not 261D 1F3FE FE0F).
-export const applySkinTone = (emoji: string, tone: string) => {
-  const parts = emoji.split('')
-  const zwjIndex = parts.findIndex((a) => a === zeroWidthJoiner)
-  if (zwjIndex > 0) {
-    return insertAtCertainIndex(parts, zwjIndex, tone).join('')
+// Person components (👨 👩 🧑) that carry their own tone inside a multi-person
+// ZWJ sequence (🧑‍🤝‍🧑, 👩‍❤️‍👨, 👩‍❤️‍💋‍👨); RGI lists these only with every person toned.
+const personComponents = [0x1f468, 0x1f469, 0x1f9d1].map((c) => String.fromCodePoint(c))
+
+// Applies a Fitzpatrick skin-tone modifier, producing the canonical (RGI) sequence:
+// - the tone *replaces* a variation selector (VS16, U+FE0F) rather than following
+//   it, since the modifier already forces emoji presentation (☝🏾 is 261D 1F3FE,
+//   not 261D 1F3FE FE0F);
+// - in a ZWJ sequence the leading component is toned by the same rule
+//   (🕵🏾‍♀️ is 1F575 1F3FE 200D 2640 FE0F) and later components keep their VS16;
+// - every person component is toned too (🧑🏾‍🤝‍🧑🏾, not 🧑🏾‍🤝‍🧑).
+export const applySkinTone = (emoji: string, tone: string): string => {
+  const parts = emoji.split(zeroWidthJoiner)
+  if (parts.length > 1) {
+    return parts
+      .map((part, i) =>
+        i === 0 || personComponents.includes(part) ? applySkinTone(part, tone) : part,
+      )
+      .join(zeroWidthJoiner)
   }
 
-  const selectorIndex = parts.findIndex((a) => a === variantSelector)
+  const selectorIndex = emoji.indexOf(variantSelector)
   if (selectorIndex > 0) {
-    return [...parts.slice(0, selectorIndex), tone, ...parts.slice(selectorIndex + 1)].join('')
+    return emoji.slice(0, selectorIndex) + tone + emoji.slice(selectorIndex + 1)
   }
 
   return emoji + tone
