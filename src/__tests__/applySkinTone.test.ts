@@ -1,4 +1,4 @@
-import { applySkinTone } from '../utils/skinToneSelectorUtils'
+import { applySkinTone, removeSkinToneModifier } from '../utils/skinToneSelectorUtils'
 
 const codepoints = (s: string) =>
   Array.from(s)
@@ -52,6 +52,17 @@ describe('applySkinTone', () => {
     // 👩‍❤️‍💋‍👨 (1F469 200D 2764 FE0F 200D 1F48B 200D 1F468) → 👩🏾‍❤️‍💋‍👨🏾
     expect(codepoints(applySkinTone('👩‍❤️‍💋‍👨', MEDIUM_DARK))).toBe(
       'U+1F469 U+1F3FE U+200D U+2764 U+FE0F U+200D U+1F48B U+200D U+1F468 U+1F3FE',
+    )
+  })
+
+  it('round-trips a multi-person sequence through removeSkinToneModifier', () => {
+    // A recently-used toned emoji is stripped on long-press and re-toned. Both
+    // tones must go, or the second person keeps the old tone (🧑🏻‍🤝‍🧑🏾).
+    const LIGHT = String.fromCodePoint(0x1f3fb) // 🏻
+    const toned = applySkinTone('🧑‍🤝‍🧑', MEDIUM_DARK)
+    expect(codepoints(removeSkinToneModifier(toned))).toBe('U+1F9D1 U+200D U+1F91D U+200D U+1F9D1')
+    expect(codepoints(applySkinTone(removeSkinToneModifier(toned), LIGHT))).toBe(
+      'U+1F9D1 U+1F3FB U+200D U+1F91D U+200D U+1F9D1 U+1F3FB',
     )
   })
 })

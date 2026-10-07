@@ -78,7 +78,8 @@ export const removeSkinToneModifier = (emoji: string) => {
   for (let i = 0; i < skinToneCodes.length; i++) {
     const skinTone = skinToneCodes[i]
 
-    emojiCopy = skinTone ? emojiCopy.replace(skinTone, '') : emojiCopy
+    // split/join strips every occurrence: multi-person sequences carry two tones.
+    emojiCopy = skinTone ? emojiCopy.split(skinTone).join('') : emojiCopy
   }
   return emojiCopy
 }
