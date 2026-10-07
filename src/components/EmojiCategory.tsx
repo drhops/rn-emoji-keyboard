@@ -12,7 +12,7 @@ import { SingleEmoji } from './SingleEmoji'
 import { KeyboardContext } from '../contexts/KeyboardContext'
 import { useKeyboardStore } from '../store/useKeyboardStore'
 import { parseEmoji } from '../utils/parseEmoji'
-import { removeSkinToneModifier } from '../utils/skinToneSelectorUtils'
+import { getUntonedEmoji } from '../utils/skinToneSelectorUtils'
 import { useKeyboard } from '../hooks/useKeyboard'
 import { InteractionManager } from 'react-native'
 
@@ -92,7 +92,7 @@ export const EmojiCategory = React.memo(
 
         const emojiWithoutTone = {
           ...emoji,
-          emoji: removeSkinToneModifier(emoji.emoji),
+          emoji: getUntonedEmoji(emoji),
         }
 
         generateEmojiTones(emojiWithoutTone, emojiIndex, emojiSizes)

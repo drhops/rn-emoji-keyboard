@@ -1,4 +1,6 @@
+import emojisByCategory from '../assets/emojis.json'
 import { TONES_CONTAINER_WIDTH } from '../components/SkinTones'
+import type { EmojisByCategory, JsonEmoji } from '../types'
 
 const EMOJI_PADDING = 8
 const KEYBOARD_PADDING = 10
@@ -27,7 +29,10 @@ export const generateToneSelectorPosition = (
   const maxXPosition = windowWidth - TONES_CONTAINER_WIDTH - sumOfPaddings * 2
 
   // different x position for emojis before and after center column
-  const x = emojiIndexInRow < centerColumn ? emojiIndexInRow * emojiWidth : maxXPosition
+  const x =
+    emojiIndexInRow < centerColumn
+      ? Math.min(emojiIndexInRow * emojiWidth, maxXPosition)
+      : maxXPosition
 
   // current row number
   const rowNumber = emojiIndex / numOfColumns >= 1 ? Math.floor(emojiIndex / numOfColumns) : 0
@@ -82,6 +87,17 @@ export const removeSkinToneModifier = (emoji: string) => {
   }
   return emojiCopy
 }
+
+const untonedEmojiByName = new Map(
+  (emojisByCategory as EmojisByCategory[])
+    .flatMap((category) => category.data)
+    .map((emoji) => [emoji.name, emoji.emoji]),
+)
+
+// A skin tone replaces the variation selector, so stripping the tone alone
+// can't restore the base (✌🏽 would become a bare ✌ instead of ✌️).
+export const getUntonedEmoji = (emoji: JsonEmoji) =>
+  untonedEmojiByName.get(emoji.name) ?? removeSkinToneModifier(emoji.emoji)
 
 // Applies a Fitzpatrick skin-tone modifier to a base emoji, producing a
 // canonical Unicode sequence.
