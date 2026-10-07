@@ -84,32 +84,25 @@ export const removeSkinToneModifier = (emoji: string) => {
   return emojiCopy
 }
 
-// Person components that take their own tone when they *close* a multi-person
-// ZWJ sequence (🧑‍🤝‍🧑, 👩‍❤️‍👨, 👩‍❤️‍💋‍👨). The RGI set only lists these with
-// both people toned, so toning the leading person alone is non-RGI.
+// Person components (👨 👩 🧑) that carry their own tone inside a multi-person
+// ZWJ sequence (🧑‍🤝‍🧑, 👩‍❤️‍👨, 👩‍❤️‍💋‍👨); RGI lists these only with every person toned.
 const personComponents = [0x1f468, 0x1f469, 0x1f9d1].map((c) => String.fromCodePoint(c))
 
-// Applies a Fitzpatrick skin-tone modifier to a base emoji, producing a
-// canonical (RGI) Unicode sequence.
-//
-// The modifier goes before a ZWJ (so it tones the leading component of a ZWJ
-// sequence), and *replaces* a variation selector (VS16, U+FE0F) rather than
-// following it: the modifier already forces emoji presentation, so a trailing
-// VS16 is non-conformant and fails strict emoji validation (e.g. ☝🏾 must be
-// 261D 1F3FE, not 261D 1F3FE FE0F). The same rule applies to the leading
-// component of a ZWJ sequence (e.g. 🕵🏾‍♀️ must be 1F575 1F3FE 200D 2640 FE0F,
-// not 1F575 FE0F 1F3FE 200D 2640 FE0F). Non-leading components keep their VS16
-// (the ♀️ in 🕵🏾‍♀️, the ➡️ in 🚶🏾‍♀️‍➡️). A trailing person component in a
-// multi-person sequence is toned as well (🧑🏾‍🤝‍🧑🏾, not 🧑🏾‍🤝‍🧑).
+// Applies a Fitzpatrick skin-tone modifier, producing the canonical (RGI) sequence:
+// - the tone *replaces* a variation selector (VS16, U+FE0F) rather than following
+//   it, since the modifier already forces emoji presentation (☝🏾 is 261D 1F3FE,
+//   not 261D 1F3FE FE0F);
+// - in a ZWJ sequence the leading component is toned by the same rule
+//   (🕵🏾‍♀️ is 1F575 1F3FE 200D 2640 FE0F) and later components keep their VS16;
+// - every person component is toned too (🧑🏾‍🤝‍🧑🏾, not 🧑🏾‍🤝‍🧑).
 export const applySkinTone = (emoji: string, tone: string): string => {
-  const zwjIndex = emoji.indexOf(zeroWidthJoiner)
-  if (zwjIndex > 0) {
-    const [leading, ...rest] = emoji.split(zeroWidthJoiner)
-    const last = rest[rest.length - 1]
-    if (last !== undefined && personComponents.includes(last)) {
-      rest[rest.length - 1] = last + tone
-    }
-    return [applySkinTone(leading ?? '', tone), ...rest].join(zeroWidthJoiner)
+  const parts = emoji.split(zeroWidthJoiner)
+  if (parts.length > 1) {
+    return parts
+      .map((part, i) =>
+        i === 0 || personComponents.includes(part) ? applySkinTone(part, tone) : part,
+      )
+      .join(zeroWidthJoiner)
   }
 
   const selectorIndex = emoji.indexOf(variantSelector)

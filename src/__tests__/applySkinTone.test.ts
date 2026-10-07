@@ -56,12 +56,12 @@ describe('applySkinTone', () => {
   })
 
   it('round-trips a multi-person sequence through removeSkinToneModifier', () => {
-    // A recently-used toned emoji is stripped on long-press and re-toned. Both
-    // tones must go, or the second person keeps the old tone (🧑🏻‍🤝‍🧑🏾).
+    // Long-press on a recently-used toned emoji strips it and re-tones it; both
+    // tones must go or the second person keeps the old one (🧑🏻‍🤝‍🧑🏾).
     const LIGHT = String.fromCodePoint(0x1f3fb) // 🏻
-    const toned = applySkinTone('🧑‍🤝‍🧑', MEDIUM_DARK)
-    expect(codepoints(removeSkinToneModifier(toned))).toBe('U+1F9D1 U+200D U+1F91D U+200D U+1F9D1')
-    expect(codepoints(applySkinTone(removeSkinToneModifier(toned), LIGHT))).toBe(
+    const stripped = removeSkinToneModifier(applySkinTone('🧑‍🤝‍🧑', MEDIUM_DARK))
+    expect(codepoints(stripped)).toBe('U+1F9D1 U+200D U+1F91D U+200D U+1F9D1')
+    expect(codepoints(applySkinTone(stripped, LIGHT))).toBe(
       'U+1F9D1 U+1F3FB U+200D U+1F91D U+200D U+1F9D1 U+1F3FB',
     )
   })
