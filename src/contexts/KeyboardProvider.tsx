@@ -69,13 +69,18 @@ export const KeyboardProvider: React.FC<ProviderProps> = React.memo((props) => {
 
       const EXTRA_SEARCH_TOP = props.enableSearchBar || props.categoryPosition === 'top' ? 50 : 0
 
-      const modifiedEmojis = skinTones.map((tone) => ({
-        index: tone.name,
+      const toneOption = (index: string, tonedEmoji: string) => ({
+        index,
         name: emoji.name,
         v: emoji.v,
         toneEnabled: true,
-        emoji: applySkinTone(emoji.emoji, tone.color),
-      }))
+        emoji: tonedEmoji,
+      })
+
+      const modifiedEmojis = [
+        toneOption('default_skin_tone', emoji.emoji),
+        ...skinTones.map((tone) => toneOption(tone.name, applySkinTone(emoji.emoji, tone.color))),
+      ]
 
       const skinTonePosition = generateToneSelectorPosition(
         numberOfColumns.current,
