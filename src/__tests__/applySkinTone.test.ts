@@ -56,8 +56,8 @@ describe('applySkinTone', () => {
   })
 
   it('round-trips a multi-person sequence through removeSkinToneModifier', () => {
-    // Long-press on a recently-used toned emoji strips it and re-tones it; both
-    // tones must go or the second person keeps the old one (🧑🏻‍🤝‍🧑🏾).
+    // getUntonedEmoji falls back to removeSkinToneModifier for emoji outside the
+    // bundled data; both tones must go or the second person keeps the old one (🧑🏻‍🤝‍🧑🏾).
     const LIGHT = String.fromCodePoint(0x1f3fb) // 🏻
     const stripped = removeSkinToneModifier(applySkinTone('🧑‍🤝‍🧑', MEDIUM_DARK))
     expect(codepoints(stripped)).toBe('U+1F9D1 U+200D U+1F91D U+200D U+1F9D1')
