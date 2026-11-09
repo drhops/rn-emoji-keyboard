@@ -14,7 +14,6 @@ import { useKeyboardStore } from '../store/useKeyboardStore'
 import { parseEmoji } from '../utils/parseEmoji'
 import { getUntonedEmoji } from '../utils/skinToneSelectorUtils'
 import { useKeyboard } from '../hooks/useKeyboard'
-import { InteractionManager } from 'react-native'
 
 const emptyEmoji: JsonEmoji = {
   emoji: '',
@@ -147,14 +146,6 @@ export const EmojiCategory = React.memo(
 
     const [maxIndex, setMaxIndex] = React.useState(0)
 
-    // with InteractionManager we can show emojis after interaction is finished
-    // It helps with delay during category change animation
-    InteractionManager.runAfterInteractions(() => {
-      if (maxIndex === 0 && data.length) {
-        setMaxIndex(minimalEmojisAmountToDisplay)
-      }
-    })
-
     const onEndReached = () => {
       if (maxIndex <= data.length) {
         setMaxIndex(data.length)
@@ -166,6 +157,12 @@ export const EmojiCategory = React.memo(
         setMaxIndex(0)
       }
     }, [activeCategoryIndex, title])
+
+    React.useEffect(() => {
+      if (maxIndex === 0 && data.length) {
+        setMaxIndex(minimalEmojisAmountToDisplay)
+      }
+    }, [maxIndex, data.length, minimalEmojisAmountToDisplay])
 
     const flatListData = data.slice(0, maxIndex)
 
